@@ -1,8 +1,10 @@
 import "./App.css";
 import { useState, useEffect, useRef } from "react";
 import antlr4 from "antlr4";
-import NqlLexer from "./Grammar/NqlLexer";
-import NqlParser, { atn } from "./Grammar/NqlParser";
+// import JavaScriptLexer from "./Grammar/JavaScriptLexer";
+// import JavaScriptParser, { atn } from "./Grammar/JavaScriptParser";
+import JavaScriptLexer from "./ANTLR/JavaScriptLexer";
+import JavaScriptParser, {atn} from "./ANTLR/JavaScriptParser";
 import NqlParserListener from "./Grammar/NqlParserListener";
 import { ControlledEditor, monaco } from "@monaco-editor/react";
 import examples from "./examples";
@@ -42,7 +44,7 @@ function App() {
 	console.log("lineQuery", lineQuery);
 
 	const CARET_TOKEN_TYPE = -10;
-	const RULE_NAMES = NqlParser.ruleNames;
+	const RULE_NAMES = JavaScriptParser.ruleNames;
 	const ATN_FIRST_STATE = atn.states[0];
 
 	const fields = ["HEHe", "Library", "Doing"];
@@ -115,11 +117,11 @@ function App() {
 		if (t instanceof EpsilonTransition) return "(epsilon)";
 		if (t instanceof RuleTransition) return `rule ${RULE_NAMES[t.ruleIndex]} precedence ${t.precedence}`;
 		if (t instanceof AtomTransition) {
-			return `atom(${NqlLexer.symbolicNames[t.label_]})`;
+			return `atom(${JavaScriptLexer.symbolicNames[t.label_]})`;
 		}
 		if (t instanceof SetTransition) {
 			return getLabel(t.label.intervals)
-				.map(el => NqlLexer.symbolicNames[el])
+				.map(el => JavaScriptLexer.symbolicNames[el])
 				.join(", ");
 		}
 		if (t instanceof ActionTransition) return "action";
@@ -206,7 +208,7 @@ function App() {
 	const preceedingTokens = input => {
 		const res = [];
 		const stream = new antlr4.InputStream(input);
-		const lexer = new NqlLexer(stream);
+		const lexer = new JavaScriptLexer(stream);
 		let next = null;
 		do {
 			next = lexer.nextToken();
@@ -235,8 +237,10 @@ function App() {
 	};
 
 	const normalize = tokenType => {
-		const displayName = NqlLexer.symbolicNames[tokenType];
-		if (displayName.startsWith("'") && displayName.endsWith("'")) return displayName.substring(1, displayName.length() - 1).replaceAll("\\'", "'");
+		const displayName = JavaScriptLexer.symbolicNames[tokenType];
+
+    console.log(displayName, tokenType, 'dis');
+		if (displayName?.startsWith("'") && displayName?.endsWith("'")) return displayName.substring(1, displayName.length() - 1).replaceAll("\\'", "'");
 		return displayName;
 	};
 
@@ -248,7 +252,7 @@ function App() {
 
 		for (let tokenType of tokenTypes) {
 			switch (tokenType) {
-				// case NqlLexer.ID:
+				// case JavaScriptLexer.ID:
 				// suggestions.push(...fields, ...functions);
 				//   break;
 				default:
